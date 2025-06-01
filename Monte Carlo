@@ -1,0 +1,13 @@
+import numpy as np
+
+def monte_carlo_mega_sena(n_simulacoes=100000, n_apostas=100):
+    acertos = []
+    for _ in range(n_simulacoes):
+        sorteio = np.random.choice(60, size=6, replace=False) + 1  # Sorteio oficial
+        aposta = np.random.choice(60, size=6, replace=False) + 1  # Aposta do usuário
+        match = len(np.intersect1d(sorteio, aposta))
+        acertos.append(match >= 4)  # Pelo menos 4 acertos
+    probabilidade = np.mean(acertos) * 100
+    return f"Probabilidade: {probabilidade:.2f}% em {n_apostas} apostas"
+
+print(monte_carlo_mega_sena())  
