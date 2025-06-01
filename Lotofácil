@@ -1,0 +1,73 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import defaultdict
+
+def monte_carlo_lotofacil(n_apostas=1, n_simulacoes=100000, estrategia=None):
+    """
+    Simula sorteios da Lotofácil usando Método de Monte Carlo.
+    
+    Parâmetros:
+    - n_apostas: Número de apostas por simulação (padrão: 1).
+    - n_simulacoes: Número de sorteios simulados (padrão: 100.000).
+    - estrategia: None (aleatória), 'pares', 'impares', 'mais_frequentes'.
+    
+    Retorna:
+    - Probabilidades para cada faixa de acertos (11 a 15).
+    - Gráfico de distribuição de acertos.
+    """
+    
+    # Dados históricos (exemplo simplificado)
+    numeros_mais_frequentes = [10, 5, 20, 24, 2, 23, 4, 14, 15, 12, 19, 3, 6, 16, 25]
+    
+    # Configuração da estratégia
+    if estrategia == 'pares':
+        numeros_estrategia = [n for n in range(1, 26) if n % 2 == 0]
+    elif estrategia == 'impares':
+        numeros_estrategia = [n for n in range(1, 26) if n % 2 != 0]
+    elif estrategia == 'mais_frequentes':
+        numeros_estrategia = numeros_mais_frequentes
+    else:
+        numeros_estrategia = list(range(1, 26))  # Todos os números
+    
+    resultados = defaultdict(int)
+    
+    for _ in range(n_simulacoes):
+        # Sorteio oficial (15 números entre 1-25)
+        sorteio = np.random.choice(25, size=15, replace=False) + 1
+        
+        # Aposta(s) do usuário
+        for _ in range(n_apostas):
+            if estrategia:
+                aposta = np.random.choice(numeros_estrategia, size=15, replace=False)
+            else:
+                aposta = np.random.choice(25, size=15, replace=False) + 1
+            
+            # Contagem de acertos
+            acertos = len(np.intersect1d(sorteio, aposta))
+            resultados[acertos] += 1
+    
+    # Cálculo das probabilidades
+    probabilidades = {}
+    for acertos in range(11, 16):
+        probabilidades[acertos] = resultados.get(acertos, 0) / n_simulacoes * 100
+    
+    # Plotagem
+    plt.bar(probabilidades.keys(), probabilidades.values(), color='#0066CC')
+    plt.xlabel('Números Acertados')
+    plt.ylabel('Probabilidade (%)')
+    plt.title(f'Probabilidades na Lotofácil (Estratégia: {estrategia or "Aleatória"})')
+    plt.xticks(range(11, 16))
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.show()
+    
+    return probabilidades
+
+# Exemplo de uso:
+print("=== SIMULAÇÃO MONTE CARLO - LOTOFÁCIL ===")
+print("\nEstratégia Aleatória:")
+probs = monte_carlo_lotofacil(n_apostas=1, n_simulacoes=100000)
+for acertos, prob in probs.items():
+    print(f"{acertos} acertos: {prob:.2f}%")
+
+print("\nEstratégia 'Apostar só em Pares':")
+monte_carlo_lotofacil(estrategia='pares')
